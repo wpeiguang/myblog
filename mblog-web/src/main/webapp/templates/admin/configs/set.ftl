@@ -26,6 +26,13 @@
         </div>
     </div>
     <div class="form-group">
+        <label class="col-lg-2 control-label">51job是否已人工验证</label>
+        <select class="col-lg-8 form-control" id="verify" name="verify" value="${configs['verify'].value}" style="width: 100px;    margin-left: 10px;">
+            <option value="0">是</option>
+            <option value="1">否</option>
+        </select>
+    </div>
+    <div class="form-group">
         <div class="col-lg-9 col-lg-offset-3">
             <button type="submit" class="btn btn-primary btn-small">提交</button>
         </div>
@@ -35,12 +42,17 @@
     $(function () {
         var h51Cookie = $("#h51").val();
         var zhilianCookie = $("#zhilian").val();
+        $("#verify").val(${configs['verify'].value});
+        var verify = $("#verify").val();
 
         if(h51Cookie == ""){
             alert("前程无忧cookie已失效");
         }
         if(zhilianCookie == ""){
             alert("智联招聘cookie已失效");
+        }
+        if(verify == "1"){
+            alert("51job简历查看需要人工验证码");
         }
     })
 </script>
