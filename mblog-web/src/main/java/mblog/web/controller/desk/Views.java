@@ -13,7 +13,7 @@ package mblog.web.controller.desk;
  * 
  * 返回页面配置
  * 
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public interface Views {

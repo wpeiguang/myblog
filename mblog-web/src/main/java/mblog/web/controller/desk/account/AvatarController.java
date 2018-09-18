@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.io.File;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller

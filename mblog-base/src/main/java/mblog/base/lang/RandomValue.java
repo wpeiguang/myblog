@@ -1,7 +1,5 @@
-package common;
+package mblog.base.lang;
 
-import com.sun.jna.StringArray;
-import jj2000.j2k.codestream.HeaderInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -10,18 +8,17 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import task.TaiqiThread;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import java.util.function.ToLongBiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -127,38 +124,39 @@ public class RandomValue {
         try {
             String input = FileUtils.readFileToString(new File(path), "UTF-8");
             jsonArray = new JSONArray(input);
+
+            while (true) {
+                int size = jsonArray.length();
+                JSONObject obj = jsonArray.getJSONObject((int) (Math.random() * size));
+                String province = obj.getString("name");
+                JSONArray citys = obj.getJSONArray("city");
+                size = citys.length();
+                JSONObject cityObject = citys.getJSONObject((int) (Math.random() * size));
+                String city = cityObject.getString("name");
+                JSONArray areas = cityObject.getJSONArray("area");
+                size = areas.length();
+                String area = (String) areas.get((int) (Math.random() * size));
+                HttpRequest httpRequest = new HttpRequest(null, null, null);
+                String res = httpRequest.sendGet("https://youbian.911cha.com/", "q=" + province + city + area);
+                Document doc = Jsoup.parse(res);
+                Element body = doc.body();
+                Element table = body.select("table").first();
+                if (table == null) {
+                    continue;
+                }
+                Elements td = table.select("td");
+                String postcode = td.get(3).select("a").text();
+    //            for (Element element : a) {
+    //                System.out.println(element);
+    //            }
+                map.put("province", province);
+                map.put("city", city);
+                map.put("area", area);
+                map.put("postcode", postcode);
+                return map;
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return map;
-        }
-        while (true) {
-            int size = jsonArray.length();
-            JSONObject obj = jsonArray.getJSONObject((int) (Math.random() * size));
-            String province = obj.getString("name");
-            JSONArray citys = obj.getJSONArray("city");
-            size = citys.length();
-            JSONObject cityObject = citys.getJSONObject((int) (Math.random() * size));
-            String city = cityObject.getString("name");
-            JSONArray areas = cityObject.getJSONArray("area");
-            size = areas.length();
-            String area = (String) areas.get((int) (Math.random() * size));
-            HttpRequest httpRequest = new HttpRequest(null, null, null);
-            String res = httpRequest.sendGet("https://youbian.911cha.com/", "q=" + province + city + area);
-            Document doc = Jsoup.parse(res);
-            Element body = doc.body();
-            Element table = body.select("table").first();
-            if (table == null) {
-                continue;
-            }
-            Elements td = table.select("td");
-            String postcode = td.get(3).select("a").text();
-//            for (Element element : a) {
-//                System.out.println(element);
-//            }
-            map.put("province", province);
-            map.put("city", city);
-            map.put("area", area);
-            map.put("postcode", postcode);
             return map;
         }
     }
@@ -376,46 +374,7 @@ public class RandomValue {
         }
         return sb.toString();
     }
-    public static String getWolfPhone(String itemId){
-        HttpRequest httpRequest = new HttpRequest(null, null, null);
-        String phoneUrl = "http://api.yyyzmpt.com/index.php/clients/online/setWork?token=" + Common.wolfToken +"&pid=" + itemId + "&t=1";
-        String response = httpRequest.sendGet(phoneUrl, "");
-        try {
-            JSONObject json = new JSONObject(response);
-            int code = (int)json.get("errno");
-            if(code != 0){
-                logger.error(response);
-                return null;
-            }
-            JSONObject data = json.getJSONObject("ret");
-            return data.getString("number");
-        }catch (Exception e){
-            return null;
-        }
-    }
-    public static void releaseWolfPhone(String phone){
-        HttpRequest httpRequest = new HttpRequest(null, null, null);
-        String phoneUrl = "http://api.yyyzmpt.com/index.php/clients/online/completeWork?token=" + Common.wolfToken +"&number=" + phone;
-        String response = httpRequest.sendGet(phoneUrl, "");
-    }
 
-    public static String getWolfVeriCode(String phone, String itemId){
-        HttpRequest httpRequest = new HttpRequest(null, null, null);
-        String phoneUrl = "http://api.yyyzmpt.com/index.php/clients/sms/getVoiceSms?token=" + Common.wolfToken +"&project=" + itemId + "&number="+phone+"&type=3&jmp=2";
-        String response = httpRequest.sendGet(phoneUrl, "");
-        try {
-            JSONObject json = new JSONObject(response);
-            int code = (int)json.get("errno");
-            if(code != 0){
-                logger.error(response);
-                return null;
-            }
-            JSONObject data = json.getJSONObject("ret");
-            return data.getString("content");
-        }catch (Exception e){
-            return null;
-        }
-    }
     public static String getToken(){
         HttpRequest httpRequest = new HttpRequest(null, null, null);
         String result = httpRequest.sendPost("http://api.yyyzmpt.com/index.php/reg/login","username=wpeiguang&password=201030471420");
@@ -449,62 +408,7 @@ public class RandomValue {
         }
         return span.get(0).text();
     }
-    public static void aixinLogin(){
-        if(!Common.AI_TOKEN.isEmpty()){
-            return;
-        }
-        String loginUrl = "http://api.ixinsms.com/api/do.php?action=loginIn&name=wpeiguang&password=201030471420";
-        HttpRequest httpRequest = new HttpRequest(null, null, null);
-        String response = httpRequest.sendGet(loginUrl, "");
-        if(response == null){
-            return;
-        }
-        if(!response.contains("|")){
-            return;
-        }
-        String[] res = response.split("\\|");
-       Common.token = res[1];
-    }
-    public static String getAixinPhone(String itemId){
-        String phoneUrl = "http://api.ixinsms.com/api/do.php?action=getPhone&sid="+itemId+"&token="+Common.AI_TOKEN;
-        HttpRequest httpRequest = new HttpRequest(null, null, null);
-        String response = httpRequest.sendGet(phoneUrl, "");
-        if(response == null){
-            return null;
-        }
-        if(!response.contains("|")){
-            return null;
-        }
-        String[] res = response.split("\\|");
-        return res[1];
-    }
-    public static String getAixinVercode(String itemId, String phone, int len){
-        String phoneUrl = "http://api.ixinsms.com/api/do.php?action=getMessage&sid="+itemId+"&phone="+phone+"&token="+Common.AI_TOKEN;
-        HttpRequest httpRequest = new HttpRequest(null, null, null);
-        String result = "0";
-        String smsContent = "";
-        int loop = 50;
-        while (result.equals(0) && loop-- > 0) {
-            String response = httpRequest.sendGet(phoneUrl, "");
-            if (response == null) {
-                return null;
-            }
-            if (!response.contains("|")) {
-                return null;
-            }
-            String[] res = response.split("\\|");
-            result = res[0];
-            smsContent = res[1];
-            if(result.equals("0")){
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return RandomValue.getYzmFromSms(smsContent, len);
-    }
+
 
     public static String getUUID() {
         return UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();

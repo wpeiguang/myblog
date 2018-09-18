@@ -9,6 +9,7 @@
 */
 package mblog.web.controller;
 
+import mblog.base.print.Printer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -20,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import mblog.web.controller.desk.Views;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * 登录页
- * @author langhsu
+ * @author wangpeiguang
  */
 @Controller
 public class LoginController extends BaseController {
@@ -44,13 +47,14 @@ public class LoginController extends BaseController {
      * @return
      */
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String login(String username, String password,@RequestParam(value = "rememberMe",defaultValue = "0") int rememberMe, ModelMap model) {
+	public String login(String username, String password,@RequestParam(value = "rememberMe",defaultValue = "0") int rememberMe, ModelMap model, HttpServletRequest request) {
 		String ret = getView(Views.LOGIN);
-		
+        Printer.info("[login] username: "+username +", password: "+password);
+        Printer.info("login ip: "+getIpAddr(request));
 		if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             return ret;
         }
-		
+
 		AuthenticationToken token = createToken(username, password);
         if (token == null) {
         	model.put("message", "用户名或密码错误");

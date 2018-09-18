@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * 第三方开发授权登录
- * @author langhsu on 2015/8/12.
+ * @author wangpeiguang on 2015/8/12.
  */
 public interface OpenOauthDao extends JpaRepository<OpenOauthPO, Long>, JpaSpecificationExecutor<OpenOauthPO> {
     OpenOauthPO findByAccessToken(String accessToken);

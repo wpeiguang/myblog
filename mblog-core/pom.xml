@@ -12,5 +12,10 @@
 			<groupId>com.mtons.mblog</groupId>
 			<artifactId>mblog-base</artifactId>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+    </dependencies>
 </project>

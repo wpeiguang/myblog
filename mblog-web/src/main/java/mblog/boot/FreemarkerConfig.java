@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 /**
- * Created by langhsu on 2017/11/14.
+ * Created by wangpeiguang on 2017/11/14.
  */
 @Component
 public class FreemarkerConfig {

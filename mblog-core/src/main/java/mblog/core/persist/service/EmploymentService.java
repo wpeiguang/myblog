@@ -17,7 +17,7 @@ public interface EmploymentService {
 
     void delete(List<Long> ids);
 
-    void deleteResume(List<Long> ids);
+    void deleteResume(Long id);
 
     Page<Resume> getResumeList(Pageable pageable);
 

@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * 文章操作
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller

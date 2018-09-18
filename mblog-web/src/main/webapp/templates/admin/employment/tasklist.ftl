@@ -1,4 +1,8 @@
 <#include "/admin/message.ftl">
+<#include "/admin/message.ftl">
+<#include "/admin/utils/ui.ftl"/>
+<meta http-equiv="refresh" content="600">
+<@layout>
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="x_panel">
@@ -28,9 +32,9 @@
                     <div class="form-group">
                         <label class="control-label">学历</label>
                         <select class="form-control" id="degree" name="degree" value="${post.degree}">
-                            <option value="211/985本科,211本科,985本科,二本（正式）,大学本科,硕士研究生,专科,大专">全部</option>
-                            <option value="211/985本科,211本科,985本科,二本（正式）,三本,大学本科">本科</option>
-                            <option value="专科,大专">专科</option>
+                            <option value="硕士,211/985本科,211本科,985本科,二本（正式）,大学本科,硕士研究生,专科,大专">全部</option>
+                            <option value="硕士,211/985本科,211本科,985本科,二本（正式）,三本,大学本科">本科</option>
+                            <option value="硕士,211/985本科,211本科,985本科,二本（正式）,大学本科,硕士研究生,专科,大专">专科</option>
                         </select>
                         <label style="width:20px"></label>
                     </div>
@@ -108,12 +112,43 @@
                     </#list>
                     </tbody>
                 </table>
-            <@pager "list" page 5 />
+            <@pager "tasklist" page 5 />
             </div>
         </div>
     </div>
 </div>
-
+<div style="display: none;">
+    <div class="form-group">
+        <label class="col-lg-2 control-label">TPG系统</label>
+        <div class="col-lg-8">
+            <textarea rows="3" class="form-control" name="tpg_cookies" class="form-control" placeholder="请输入TPG系统cookies">${configs['tpg_cookies'].value}</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">前程无忧</label>
+        <div class="col-lg-8">
+            <textarea rows="3" class="form-control" id="h51" name="h51_cookies" class="form-control" placeholder="请输入前程无忧cookies">${configs['h51_cookies'].value}</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">智联招聘</label>
+        <div class="col-lg-8">
+            <textarea rows="3" class="form-control" id="zhilian" name="zhilian_cookies" placeholder="请输入智联招聘cookies">${configs['zhilian_cookies'].value}</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">ip地址</label>
+        <div class="col-lg-8">
+            <textarea rows="3" class="form-control" name="ip" placeholder="ip地址">${configs['ip'].value}</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-2 control-label">51job是否已人工验证</label>
+        <div class="col-lg-8">
+            <textarea rows="3" class="form-control" id="verify" placeholder="verify">${configs['verify'].value}</textarea>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     var J = jQuery;
 
@@ -122,7 +157,7 @@
             if (json.message != null && json.message != '') {
                 layer.msg(json.message, {icon: 1});
             }
-            window.location.href = "${base}/admin/employment/";
+            window.location.reload();
         } else {
             layer.msg(json.message, {icon: 2});
         }
@@ -178,5 +213,19 @@
             }, function () {
             });
         });
+
+        var h51Cookie = $("#h51").val();
+        var zhilianCookie = $("#zhilian").val();
+        var verify = $("#verify").val();
+        if(h51Cookie == ""){
+            alert("前程无忧cookie已失效");
+        }
+        if(zhilianCookie == ""){
+            alert("智联招聘cookie已失效");
+        }
+        if(verify == "1"){
+            alert("51job简历查看需要人工验证码");
+        }
     })
 </script>
+</@layout>

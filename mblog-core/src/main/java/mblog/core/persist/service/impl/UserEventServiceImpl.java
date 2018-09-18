@@ -20,7 +20,7 @@ import mblog.core.persist.service.UserEventService;
 import java.util.List;
 
 /**
- * @author langhsu on 2015/8/6.
+ * @author wangpeiguang on 2015/8/6.
  */
 @Service
 public class UserEventServiceImpl implements UserEventService {

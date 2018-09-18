@@ -12,7 +12,7 @@ package mblog.core.data;
 
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public class Config {

@@ -15,7 +15,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public class FileNameUtils {

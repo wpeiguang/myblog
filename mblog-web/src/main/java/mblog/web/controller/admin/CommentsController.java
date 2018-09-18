@@ -26,7 +26,7 @@ import mblog.core.persist.service.CommentService;
 import mblog.web.controller.BaseController;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller("mng_comment_ctl")

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 标签
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller

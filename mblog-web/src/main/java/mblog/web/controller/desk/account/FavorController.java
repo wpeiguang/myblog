@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author langhsu on 2015/8/31.
+ * @author wangpeiguang on 2015/8/31.
  */
 @Controller
 @RequestMapping("/account")

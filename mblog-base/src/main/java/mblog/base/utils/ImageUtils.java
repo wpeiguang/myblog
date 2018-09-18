@@ -10,7 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * @author langhsu on 2015/9/4.
+ * @author wangpeiguang on 2015/9/4.
  */
 public class ImageUtils {
     private static Logger log = Logger.getLogger(ImageUtils.class);

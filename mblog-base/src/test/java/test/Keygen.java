@@ -117,7 +117,7 @@ public class Keygen {
 
 	public static void main(String[] args) {
 		Random r = new Random();
-		System.out.println("name:" + "langhsu" );
-		System.out.println("KEY:" + MakeKey("langhsu", 0, r.nextInt(Integer.MAX_VALUE)));
+		System.out.println("name:" + "wangpeiguang" );
+		System.out.println("KEY:" + MakeKey("wangpeiguang", 0, r.nextInt(Integer.MAX_VALUE)));
 	}
 }

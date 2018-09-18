@@ -4,7 +4,7 @@
 package mblog.base.utils;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public class FilePathUtils {

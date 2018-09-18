@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>${user.name} 的Mtons</title>
+    <title>${user.name} 的Mbox</title>
 	<#include "/default/inc/include.ftl"/>
 </head>
 <body>

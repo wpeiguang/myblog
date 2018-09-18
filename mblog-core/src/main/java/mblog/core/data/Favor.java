@@ -5,7 +5,7 @@ import mblog.core.persist.entity.FavorPO;
 import java.util.Date;
 
 /**
- * @author langhsu on 2015/8/31.
+ * @author wangpeiguang on 2015/8/31.
  */
 public class Favor extends FavorPO {
     // extend

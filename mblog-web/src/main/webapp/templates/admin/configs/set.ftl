@@ -1,4 +1,4 @@
-<form id="qForm" class="form-horizontal" method="post" action="update_config">
+<form id="qForm" class="form-horizontal" method="post" action="update">
 <#include "/admin/message.ftl">
 
     <div class="form-group">
@@ -39,20 +39,20 @@
     </div>
 </form>
 <script type="text/javascript">
-    $(function () {
-        var h51Cookie = $("#h51").val();
-        var zhilianCookie = $("#zhilian").val();
-        $("#verify").val(${configs['verify'].value});
-        var verify = $("#verify").val();
+    <#--$(function () {-->
+        <#--var h51Cookie = $("#h51").val();-->
+        <#--var zhilianCookie = $("#zhilian").val();-->
+        <#--$("#verify").val(${configs['verify'].value});-->
+        <#--var verify = $("#verify").val();-->
 
-        if(h51Cookie == ""){
-            alert("前程无忧cookie已失效");
-        }
-        if(zhilianCookie == ""){
-            alert("智联招聘cookie已失效");
-        }
-        if(verify == "1"){
-            alert("51job简历查看需要人工验证码");
-        }
-    })
+        <#--if(h51Cookie == ""){-->
+            <#--alert("前程无忧cookie已失效");-->
+        <#--}-->
+        <#--if(zhilianCookie == ""){-->
+            <#--alert("智联招聘cookie已失效");-->
+        <#--}-->
+        <#--if(verify == "1"){-->
+            <#--alert("51job简历查看需要人工验证码");-->
+        <#--}-->
+    <#--})-->
 </script>

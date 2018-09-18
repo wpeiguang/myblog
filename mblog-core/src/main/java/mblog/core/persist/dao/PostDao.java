@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public interface PostDao extends JpaRepository<PostPO, Long>, JpaSpecificationExecutor<PostPO>, PostDaoCustom {

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Created by langhsu on 2017/11/21.
+ * Created by wangpeiguang on 2017/11/21.
  */
 @Component
 public class AuthcDirective extends TemplateDirective {

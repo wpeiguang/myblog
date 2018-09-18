@@ -10,7 +10,7 @@
 package mblog.core.persist.service;
 
 /**
- * @author langhsu on 2015/8/6.
+ * @author wangpeiguang on 2015/8/6.
  */
 public interface UserEventService {
     /**

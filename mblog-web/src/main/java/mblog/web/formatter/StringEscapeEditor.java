@@ -16,7 +16,7 @@ import org.springframework.web.util.JavaScriptUtils;
 import java.beans.PropertyEditorSupport;
 
 /**
- * Created by langhsu on 2017/9/2.
+ * Created by wangpeiguang on 2017/9/2.
  */
 public class StringEscapeEditor extends PropertyEditorSupport {
     private Logger logger = Logger.getLogger(getClass());

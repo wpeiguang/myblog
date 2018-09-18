@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  */
 public interface UserDao extends JpaRepository<UserPO, Long>, JpaSpecificationExecutor<UserPO> {
     UserPO findByUsername(String username);

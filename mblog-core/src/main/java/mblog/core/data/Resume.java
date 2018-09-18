@@ -36,14 +36,6 @@ public class Resume implements Serializable {
         this.mobile = mobile;
     }
 
-    public String getFrom() {
-        return source;
-    }
-
-    public void setFrom(String source) {
-        this.source = source;
-    }
-
     public String getResumeId() {
         return resumeId;
     }
@@ -66,5 +58,13 @@ public class Resume implements Serializable {
 
     public void setJob(String job) {
         this.job = job;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

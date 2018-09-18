@@ -14,7 +14,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Service("fileRepo")

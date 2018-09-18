@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Created by langhsu on 2017/9/30.
+ * Created by wangpeiguang on 2017/9/30.
  */
 public interface PostDaoCustom {
     Page<Post> search(Pageable pageable, String q) throws Exception;

@@ -21,7 +21,7 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 
 /**
  * 
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public class HttpUtils {

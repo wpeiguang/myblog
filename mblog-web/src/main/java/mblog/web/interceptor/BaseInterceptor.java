@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
  * 
  * 基础拦截器 - 向 request 中添加一些基础变量
  * 
- * @author langhsu
+ * @author wangpeiguang
  * 
  */
 @Component

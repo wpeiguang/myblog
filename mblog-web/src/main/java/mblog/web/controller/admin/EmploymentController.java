@@ -11,6 +11,7 @@ import mblog.core.persist.service.EmploymentService;
 import mblog.web.controller.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -32,19 +33,30 @@ public class EmploymentController extends BaseController {
     @Autowired
     private EmploymentService employmentService;
 
-    @RequestMapping("/")
+    @RequestMapping("/resumelist")
     public String list(ModelMap model) {
+        Map<String, Config> configs = configService.findAll2Map();
+        model.put("configs", configs);
+        //任务列表
+//        Pageable pageable = wrapPageable();
+//        Page<SearchTask> page = employmentService.list(pageable);
+//        model.put("page", page);
+        //简历列表
+        Pageable resumePage = wrapPageableDesc("lockDate");
+        Page<Resume> pageResume = employmentService.getResumeList(resumePage);
+        model.put("resumes", pageResume);
+        return "/admin/employment/resumelist";
+    }
+
+    @RequestMapping("/tasklist")
+    public String tasklist(ModelMap model) {
         Map<String, Config> configs = configService.findAll2Map();
         model.put("configs", configs);
         //任务列表
         Pageable pageable = wrapPageable();
         Page<SearchTask> page = employmentService.list(pageable);
         model.put("page", page);
-        //简历列表
-        Pageable resumePage = wrapPageable();
-        Page<Resume> pageResume = employmentService.getResumeList(resumePage);
-        model.put("resumes", pageResume);
-        return "/admin/employment/main";
+        return "/admin/employment/tasklist";
     }
 
     @RequestMapping("/add_task")
@@ -57,11 +69,7 @@ public class EmploymentController extends BaseController {
         Map<String, Config> configs = configService.findAll2Map();
         model.put("configs", configs);
 
-        Pageable resumePage = wrapPageable();
-        Page<Resume> pageResume = employmentService.getResumeList(resumePage);
-        model.put("resumes", pageResume);
-
-        return "/admin/employment/main";
+        return "/admin/employment/tasklist";
     }
 
     @RequestMapping("/update_config")
@@ -128,7 +136,7 @@ public class EmploymentController extends BaseController {
 
     @RequestMapping("/delete_resume")
     public @ResponseBody
-    Data deleteResume(@RequestParam("id") List<Long> id) {
+    Data deleteResume(@RequestParam("id")Long id) {
         Data data = Data.failure("操作失败");
         if (id != null) {
             try {
@@ -145,7 +153,7 @@ public class EmploymentController extends BaseController {
     public String resume(ModelMap model) {
         Pageable pageable = wrapPageable();
         Page<Resume> page = employmentService.getResumeList(pageable);
-        model.put("page", page);
+        model.put("resumes", page);
         return "/admin/employment/main";
     }
 

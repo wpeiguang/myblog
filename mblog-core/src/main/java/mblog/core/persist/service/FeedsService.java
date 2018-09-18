@@ -14,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public interface FeedsService {

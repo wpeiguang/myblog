@@ -31,7 +31,7 @@ import mblog.base.upload.FileRepo;
 import mblog.base.upload.FileRepoFactory;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public abstract class AbstractFileRepo implements FileRepo {

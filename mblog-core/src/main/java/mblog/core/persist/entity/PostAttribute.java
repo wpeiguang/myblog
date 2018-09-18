@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 /**
- * Created by langhsu on 2015/10/25.
+ * Created by wangpeiguang on 2015/10/25.
  */
 @Entity
 @Table(name = "mto_posts_attribute")

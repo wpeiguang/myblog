@@ -29,7 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 异常处理
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Component

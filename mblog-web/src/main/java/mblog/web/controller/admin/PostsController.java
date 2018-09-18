@@ -34,7 +34,7 @@ import mblog.web.controller.BaseController;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller("mng_post_ctl")

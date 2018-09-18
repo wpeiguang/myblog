@@ -106,7 +106,7 @@
         <!-- footer content -->
         <footer>
             <div class="pull-right">
-                Mblog - Powered By <a href="http://mtons.com/?copyright" target="_blank">Mtons</a>
+                Mblog - Powered By <a href="http://mtons.com/?copyright" target="_blank">Mbox</a>
             </div>
             <div class="clearfix"></div>
         </footer>

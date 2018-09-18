@@ -21,7 +21,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 /**
  * 用户信息
  *
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Entity

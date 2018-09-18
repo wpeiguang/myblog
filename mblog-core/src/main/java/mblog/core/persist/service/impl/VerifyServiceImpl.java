@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
 import java.util.Date;
 
 /**
- * @author langhsu on 2015/8/14.
+ * @author wangpeiguang on 2015/8/14.
  */
 @Service
 public class VerifyServiceImpl implements VerifyService {

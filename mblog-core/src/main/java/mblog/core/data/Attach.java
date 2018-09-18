@@ -14,7 +14,7 @@ import mblog.core.persist.entity.AttachPO;
 import java.io.Serializable;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  * 
  */
 public class Attach extends AttachPO implements Serializable {

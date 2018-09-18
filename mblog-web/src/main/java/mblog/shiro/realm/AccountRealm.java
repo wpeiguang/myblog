@@ -66,6 +66,11 @@ public class AccountRealm extends AuthorizingRealm {
         return null;
     }
 
+    protected AccountProfile getAccount(UserService userService, AuthenticationToken token){
+        UsernamePasswordToken upToken = (UsernamePasswordToken)token;
+        return userService.login(upToken.getUsername(), String.valueOf(upToken.getPassword()));
+    }
+
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         AccountProfile profile = getAccount(userService, token);
@@ -78,10 +83,5 @@ public class AccountRealm extends AuthorizingRealm {
         info.setProfile(profile);
 
         return info;
-    }
-
-    protected AccountProfile getAccount(UserService userService, AuthenticationToken token){
-        UsernamePasswordToken upToken = (UsernamePasswordToken)token;
-        return userService.login(upToken.getUsername(), String.valueOf(upToken.getPassword()));
     }
 }

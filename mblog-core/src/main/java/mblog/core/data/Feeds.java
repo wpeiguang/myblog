@@ -13,7 +13,7 @@ import mblog.core.persist.entity.FeedsPO;
 
 /**
  * 订阅
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public class Feeds extends FeedsPO {

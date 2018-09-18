@@ -26,7 +26,7 @@ import mblog.core.persist.service.UserService;
 import mblog.web.controller.BaseController;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller("mng_user_ctl")

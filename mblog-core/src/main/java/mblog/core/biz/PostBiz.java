@@ -21,7 +21,7 @@ import java.util.List;
  *
  * - 如果不使用缓存, 则直接调用Service
  * 
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public interface PostBiz {

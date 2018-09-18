@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public interface FileRepo {

@@ -30,7 +30,7 @@ import mblog.web.controller.BaseController;
 /**
  * Ueditor 文件上传
  *
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller

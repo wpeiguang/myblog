@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public interface CommentDao extends JpaRepository<CommentPO, Long>, JpaSpecificationExecutor<CommentPO> {

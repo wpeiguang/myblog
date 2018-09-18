@@ -21,6 +21,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,8 @@ public class EmploymentServiceImpl implements EmploymentService {
     private SchoolDao schoolDao;
     @Autowired
     private ConfigService configService;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     @Override
     public void addTask(SearchTask task) {
@@ -71,8 +74,8 @@ public class EmploymentServiceImpl implements EmploymentService {
     }
 
     @Override
-    public void deleteResume(List<Long> ids) {
-        resumeDao.deleteAllByIdIn(ids);
+    public void deleteResume(Long id) {
+        resumeDao.delete(id);
     }
 
     @Override
@@ -97,8 +100,7 @@ public class EmploymentServiceImpl implements EmploymentService {
         currentTime.set(Calendar.SECOND, 0);
         currentTime.set(Calendar.MILLISECOND, 0);
         Date NextHour = currentTime.getTime();
-        System.out.println(NextHour);
-        timer.scheduleAtFixedRate(new ResumeTask(taskPO, appContext.getConfig(), resumeDao, configService), NextHour, 1000 * 60 * 60);
+        timer.scheduleAtFixedRate(new ResumeTask(taskPO, appContext.getConfig(), resumeDao, configService, javaMailSender), NextHour, 1000 * 60 * 60);
         Common.taskList.put(taskPO.getId(), timer);
         taskPO.setStatus(EnumTaskStatus.RUNNING.getName());
         searchTaskDao.save(taskPO);

@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
- * @author langhsu on 2015/8/31.
+ * @author wangpeiguang on 2015/8/31.
  */
 public interface FavorDao extends JpaRepository<FavorPO, Long>, JpaSpecificationExecutor<FavorPO> {
     /**

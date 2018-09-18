@@ -19,7 +19,7 @@ import java.util.Set;
 
 /**
  * 文章管理
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public interface PostService {

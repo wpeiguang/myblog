@@ -29,7 +29,7 @@ import mblog.core.persist.entity.ConfigPO;
 import mblog.core.persist.service.ConfigService;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Service

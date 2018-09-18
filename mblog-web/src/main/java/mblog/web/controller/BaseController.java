@@ -2,7 +2,7 @@
 +--------------------------------------------------------------------------
 |   Mblog [#RELEASE_VERSION#]
 |   ========================================
-|   Copyright (c) 2014, 2015 mtons. All Rights Reserved
+|   Copyright (c) 2014, 2015 mbox. All Rights Reserved
 |   http://www.mtons.com
 |
 +---------------------------------------------------------------------------
@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -46,7 +47,7 @@ import java.util.List;
 /**
  * Controller 基类
  * 
- * @author langhsu
+ * @author wangpeiguang
  * 
  */
 public class BaseController {
@@ -94,6 +95,13 @@ public class BaseController {
 		return new PageRequest(pageNo - 1, pageSize);
 	}
 
+	protected Pageable wrapPageableDesc(String param) {
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		int pageSize = ServletRequestUtils.getIntParameter(request, "pageSize", 10);
+		int pageNo = ServletRequestUtils.getIntParameter(request, "pn", 1);
+		return new PageRequest(pageNo - 1, pageSize, Sort.Direction.DESC, param);
+	}
+
 	/**
 	 * 包装分页对象
 	 *
@@ -125,7 +133,8 @@ public class BaseController {
 		return String.format(format, group);
 	}
 
-	public static String getIpAddr(HttpServletRequest request) throws Exception {
+	public static String getIpAddr(HttpServletRequest request){
+//		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		String ip = request.getHeader("X-Real-IP");
 		if (!StringUtils.isBlank(ip) && !"unknown".equalsIgnoreCase(ip)) {
 			return ip;

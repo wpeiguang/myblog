@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * 上传图片
  *
- * @author langhsu
+ * @author wangpeiguang
  */
 @Controller
 @RequestMapping("/post")

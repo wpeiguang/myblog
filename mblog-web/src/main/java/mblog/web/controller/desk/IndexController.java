@@ -20,7 +20,7 @@ import mblog.base.lang.Consts;
 import mblog.web.controller.BaseController;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller

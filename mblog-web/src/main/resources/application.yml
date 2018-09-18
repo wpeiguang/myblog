@@ -1,5 +1,5 @@
 server:
-    port: 8080
+    port: 80
 spring:
     freemarker:
         template-loader-path:
@@ -13,9 +13,9 @@ spring:
             number_format: 0.##
 
     datasource:
-        url: jdbc:mysql://localhost:3306/db_mblog?useSSL=false&characterEncoding=utf8
+        url: jdbc:mysql://35.221.205.59:3306/db_mblog?useSSL=false&characterEncoding=utf8
         username: root
-        password: root
+        password: Root123!
     jpa:
         database: mysql
         show-sql: false
@@ -34,10 +34,10 @@ spring:
             max-file-size: 5MB
 
     mail:
-        host: smtp.exmail.qq.com
-        username: example@mtons.com
-        password: {your password}
-        port: 25
+        host: smtp.qq.com
+        username: wpeiguang@foxmail.com
+        password: fedglgvwourfbabg
+        port: 465
         properties:
             mail.smtp.auth: true
             mail.smtp.ssl.enable: true

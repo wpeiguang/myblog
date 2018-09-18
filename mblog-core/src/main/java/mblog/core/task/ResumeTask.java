@@ -3,6 +3,8 @@ package mblog.core.task;
 import mblog.base.context.AppContext;
 import mblog.base.lang.Common;
 import mblog.base.lang.HttpRequest;
+import mblog.base.lang.MtonsException;
+import mblog.base.print.Printer;
 import mblog.core.data.Config;
 import mblog.core.persist.dao.ResumeDao;
 import mblog.core.persist.entity.ResumePO;
@@ -18,7 +20,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
+import javax.mail.internet.MimeMessage;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -29,6 +35,8 @@ public class ResumeTask extends TimerTask {
     private HttpRequest zhilianHttp;
 
     private SearchTaskPO searchTaskPO;
+
+    private JavaMailSender javaMailSender;
 
     private ResumeDao resumeDao;
 
@@ -42,12 +50,13 @@ public class ResumeTask extends TimerTask {
 
     private String userAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36 Maxthon/5.2.1.6000";
 
-    public ResumeTask(SearchTaskPO searchTaskPO, Map<String, String> config, ResumeDao resumeDao, ConfigService configService){
+    public ResumeTask(SearchTaskPO searchTaskPO, Map<String, String> config, ResumeDao resumeDao, ConfigService configService, JavaMailSender javaMailSender){
         this.searchTaskPO = searchTaskPO;
 //        this.config.putAll(config);
         this.resumeDao = resumeDao;
         this.configService = configService;
         jobKey = searchTaskPO.getJobKey();
+        this.javaMailSender = javaMailSender;
     }
 
     @Override
@@ -56,12 +65,17 @@ public class ResumeTask extends TimerTask {
         configs.forEach(conf -> {
             config.put(conf.getKey(), conf.getValue());
         });
+        if(!StringUtils.isEmpty(config.get("tpg_cookies"))) {
+            tpgHttp = new HttpRequest(config.get("ip"), userAgent, null);
+            tpgHttp.setCookie(config.get("tpg_cookies"));
+        }
+
+        if(!StringUtils.isEmpty(config.get("zhilian_cookies"))) {
+            processZhilian();
+        }
 
         if(!StringUtils.isEmpty(config.get("h51_cookies"))) {
             process51Job();
-        }
-        if(!StringUtils.isEmpty(config.get("zhilian_cookies"))) {
-            processZhilian();
         }
     }
 
@@ -72,8 +86,6 @@ public class ResumeTask extends TimerTask {
         if(currentHour > 0 && currentHour < 8){
             return;
         }
-        tpgHttp = new HttpRequest(config.get("ip"), userAgent, null);
-        tpgHttp.setCookie(config.get("tpg_cookies"));
 
         HttpRequest httpRequest = new HttpRequest(config.get("ip"), userAgent, null);
         Calendar currentTime = Calendar.getInstance();
@@ -104,10 +116,10 @@ public class ResumeTask extends TimerTask {
         param.append("#040000#0###4#99#5#99#20#36##99############1#0##040000#0#0#0");
         param.append("&showGuide=");
         //搜索结果
-        System.out.println(new Date());
+//        System.out.println(new Date());
         response = httpRequest.sendPost("https://ehire.51job.com/Candidate/SearchResumeNew.aspx", param.toString());
         param.setLength(0);
-        param.append("pageCode=3&pagerTopNew$ctl06=30");
+        param.append("pageCode=3&pagerTopNew$ctl06=20");
         search(httpRequest, response, param);
     }
 
@@ -145,9 +157,9 @@ public class ResumeTask extends TimerTask {
         Map<String, String> map = new HashMap<>();
         int index = 0;
         int size = idArr.length;
-        System.out.println(jobKey+"前程无忧刷新个数：" + size+", ids: "+ids);
+        Printer.info(jobKey+"前程无忧刷新个数：" + size+", ids: "+ids);
         if(size <= 1){
-            System.out.println("前程无忧cookie失效");
+            Printer.error("前程无忧cookie失效");
             List<Config> configs = new ArrayList<>();
             Config conf = new Config();
             conf.setKey("h51_cookies");
@@ -158,7 +170,7 @@ public class ResumeTask extends TimerTask {
         }
         for(index = 0; index < size - 1; index++){
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -173,7 +185,7 @@ public class ResumeTask extends TimerTask {
             String searchUrl = "https://ehire.51job.com/Candidate/ResumeView.aspx";
             response = httpRequest.sendPost(searchUrl, param.toString()+paramUser);
             if(response.equals("")){
-                System.out.println("获取简历详情失败，id: " + id);
+                Printer.error("获取简历详情失败，id: " + id);
                 continue;
             }
             doc = Jsoup.parse(response);
@@ -191,7 +203,7 @@ public class ResumeTask extends TimerTask {
             }
             if(labelTitle.contains("外包")){
                 resumeIds.add(jobKey+id);
-                System.out.println("简历标签不外包");
+//                System.out.println("简历标签不外包");
                 continue;
             }
             //年龄和性别
@@ -208,22 +220,32 @@ public class ResumeTask extends TimerTask {
                 }
             }
             if(age.equals("0")){
-                System.out.println("无法获取简历，id: "+ id);
-                resumeIds.add(jobKey+id);
-                continue;
+                if(tds.size() > 2 && "抱歉！该简历被求职者设为保密，暂不能查看！".equals(tds.get(2).text())){
+                    Printer.error("该简历保密，id: "+ id);
+                    resumeIds.add(jobKey+id);
+                    continue;
+                }
+                Printer.error("51job简历查看需要人工验证码，id: "+ id);
+                List<Config> configs = new ArrayList<>();
+                Config conf = new Config();
+                conf.setKey("verify");
+                conf.setValue("1");
+                configs.add(conf);
+                configService.update(configs);
+                return;
             }
             if(!searchTaskPO.getSex().contains(sex)){
-                System.out.println("这种性别不适合："+sex);
+//                System.out.println("这种性别不适合："+sex);
                 resumeIds.add(jobKey+id);
                 continue;
             }
             if(Integer.valueOf(age) > 35){
                 resumeIds.add(jobKey+id);
-                System.out.println("太老了，年龄："+age);
+//                System.out.println("太老了，年龄："+age);
                 continue;
             }
 
-            System.out.println("phone: " + phone + ", id: "+id);
+//            System.out.println("phone: " + phone + ", id: "+id);
             Elements keys = body.select(".keys");
             for(int i = 0; i < keys.size(); i++){
                 Element value = keys.get(i).nextElementSibling();
@@ -251,7 +273,7 @@ public class ResumeTask extends TimerTask {
                 continue;
             }
             if(map.size() == 0){
-                System.out.println("无法获取内容："+id);
+                Printer.error("无法获取内容："+id);
                 continue;
             }
             String name = doc.title();
@@ -263,38 +285,41 @@ public class ResumeTask extends TimerTask {
             String company1 = map.get("所属公司：") != null ? map.get("所属公司：") : "";
             String company2 = map.get("公　司：") != null ? map.get("公　司：") : "";
             if(school.contains("专修")){
-                System.out.println("学校："+school);
+//                System.out.println("学校："+school);
+                isAdd = false;
+            }
+            if(!searchTaskPO.getDegree().contains(degree)){
                 isAdd = false;
             }
             if(company1.contains("中软") || company2.contains("中软") || company1.contains("软通") || company2.contains("软通")){
-                System.out.println("曾在中软任职过："+company1+"/"+company2);
+//                System.out.println("曾在中软任职过："+company1+"/"+company2);
                 isAdd = false;
             }
             if(!job.contains(jobKey) && !perJob.contains(jobKey)){
-                System.out.println("职位不符："+job+"/"+perJob);
+//                System.out.println("职位不符："+job+"/"+perJob);
                 isAdd = false;
             }
             String jobExclude = searchTaskPO.getExcludeKey();
-            if(StringUtils.isEmpty(jobExclude) && (job.contains(jobExclude) || perJob.contains(jobExclude))){
-                System.out.println("职位不符："+job+"/"+perJob);
+            if(!StringUtils.isEmpty(jobExclude) && (job.toLowerCase().contains(jobExclude.toLowerCase()) || perJob.toLowerCase().contains(jobExclude.toLowerCase()))){
+//                System.out.println("职位不符："+job+"/"+perJob);
                 isAdd = false;
             }
             try {
                 int lowSalary = Integer.valueOf(salary.split("-")[0]);
                 if (lowSalary >= 25000 && lowSalary <= 50000) {
-                    System.out.println("要的钱太多："+salary);
+//                    System.out.println("要的钱太多："+salary);
                     isAdd = false;
                 }else if(lowSalary > 30 && lowSalary < 50){
-                    System.out.println("要的钱太多："+salary);
+//                    System.out.println("要的钱太多："+salary);
                     isAdd = false;
                 }
             }catch (Exception e){
-                System.out.println("期望薪资："+salary);
+//                System.out.println("期望薪资："+salary);
             }
 
             if(Common.schools.get(school) != null){
                 if(!searchTaskPO.getDegree().contains(Common.schools.get(school))) {
-                    System.out.println("学历有点低哦：" + school);
+//                    System.out.println("学历有点低哦：" + school);
                     isAdd = false;
                 }
 //                }else if((Common.schools.get(school).equals("专科")||degree.equals("大专")) && Integer.valueOf(graduateTime) > Common.workLimit){
@@ -302,14 +327,24 @@ public class ResumeTask extends TimerTask {
 //                    isAdd = false;
 //                }
             }else{
-                System.out.println("学校不存在："+school);
+//                System.out.println("学校不存在："+school);
                 isAdd = false;
             }
 
             if(isAdd) {
                 if(phone.contains("**") || phone.equals("")){
                     resumeIds.add(jobKey+id);
-                    System.out.println("手机号："+phone+", id: "+id);
+                    //插入简历数据
+                    ResumePO po = new ResumePO();
+                    po.setLockDate(Calendar.getInstance().getTime());
+                    po.setSource("51job");
+                    po.setMobile(phone);
+                    po.setName(name);
+                    po.setJob(jobKey);
+                    po.setResumeId(id);
+                    resumeDao.save(po);
+                    resumeIds.add(jobKey+id);
+//                    System.out.println("手机号："+phone+", id: "+id);
                     continue;
                 }
                 String result = optTPG(phone, id, name);
@@ -317,7 +352,7 @@ public class ResumeTask extends TimerTask {
                     //插入简历数据
                     ResumePO po = new ResumePO();
                     po.setLockDate(Calendar.getInstance().getTime());
-                    po.setFrom("51job");
+                    po.setSource("51job");
                     po.setMobile(phone);
                     po.setName(name);
                     po.setJob(jobKey);
@@ -333,26 +368,25 @@ public class ResumeTask extends TimerTask {
     }
 
     private void processZhilian(){
-        System.out.println("职位："+jobKey);
         zhilianHttp = new HttpRequest(config.get("ip"), userAgent, config.get("zhilian_cookies"));
         try {
             //"S_GENDER":2,
-            String str = "{\"start\":0,\"rows\":100,\"S_DISCLOSURE_LEVEL\":2,\"S_EXCLUSIVE_COMPANY\":\"中软国际科技服务有限公司;华为群深圳招聘中心\",\"S_EDUCATION\":\"4,1\",\"S_WORK_YEARS\":\"191906,201606\",\"S_DESIRED_CITY\":\"765\",\"S_CURRENT_CITY\":\"765\",\"S_ENGLISH_RESUME\":\"1\",\"isrepeat\":1,\"sort\":\"date\"}";
+            Format f = new SimpleDateFormat("yyyyMM");
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.YEAR, (int) (0-searchTaskPO.getWorkLimit()));
+            String workYears = f.format(c.getTime());
+            String str = "{\"start\":0,\"rows\":100,\"S_DISCLOSURE_LEVEL\":2,\"S_EXCLUSIVE_COMPANY\":\"中软国际科技服务有限公司;华为群深圳招聘中心\",\"S_EDUCATION\":\"4,1\",\"S_DESIRED_CITY\":\"765\",\"S_CURRENT_CITY\":\"765\",\"S_ENGLISH_RESUME\":\"1\",\"isrepeat\":1,\"sort\":\"date\"}";
             JSONObject body = new JSONObject(str);
             body.put("S_KEYWORD", jobKey);
+            body.put("S_WORK_YEARS", "191909,"+workYears);
             String response = zhilianHttp.sendHttpPost("https://rdapi.zhaopin.com/rd/search/resumeList?_="+System.currentTimeMillis(), body.toString());
             JSONObject result = new JSONObject(response);
             if(result.getInt("code") == 0){
                 JSONObject data = result.getJSONObject("data");
                 JSONArray dataList = data.getJSONArray("dataList");
                 int size = dataList.length();
-                System.out.println("智联刷新个数：" + size);
+                Printer.info(jobKey+"智联刷新个数：" + size);
                 for(int i = 0; i < size; i++){
-//                    try {
-//                        sleep(1000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
                     JSONObject resume = dataList.getJSONObject(i);
                     String id = resume.getString("id");
                     String k = resume.getString("k");
@@ -362,13 +396,13 @@ public class ResumeTask extends TimerTask {
                     }
                     String sex = resume.getString("gender");
                     if(!searchTaskPO.getSex().contains(sex)){
-                        System.out.println("这种性别不适合："+sex);
+//                        System.out.println("这种性别不适合："+sex);
                         resumeIds.add(jobKey+id);
                         continue;
                     }
                     String desireCity = resume.getString("desireCity");
                     if(!desireCity.contains("深圳")){
-                        System.out.println("期望工作城市："+desireCity);
+//                        System.out.println("期望工作城市："+desireCity);
                         resumeIds.add(jobKey+id);
                         continue;
                     }
@@ -377,28 +411,30 @@ public class ResumeTask extends TimerTask {
                     if(!jobTitle.contains(jobKey) && !jobType.contains(jobKey)){
                         //职位不符
                         resumeIds.add(jobKey+id);
-                        System.out.println("职位不符："+resume.getString("jobTitle") +"/"+resume.getString("jobType"));
+//                        System.out.println("职位不符："+resume.getString("jobTitle") +"/"+resume.getString("jobType"));
                         continue;
                     }
                     String jobExclude = searchTaskPO.getExcludeKey();
-                    if(!StringUtils.isEmpty(jobExclude) && (jobTitle.contains(jobExclude) || jobType.contains(jobExclude))){
+                    if(!StringUtils.isEmpty(jobExclude) && (jobTitle.toLowerCase().contains(jobExclude.toLowerCase()) || jobType.toLowerCase().contains(jobExclude.toLowerCase()))){
                         //职位不符
                         resumeIds.add(jobKey+id);
-                        System.out.println("职位不符："+resume.getString("jobTitle") +"/"+resume.getString("jobType"));
+//                        System.out.println("职位不符："+resume.getString("jobTitle") +"/"+resume.getString("jobType"));
                         continue;
                     }
                     JSONObject schoolDetail = resume.getJSONObject("schoolDetail");
                     String endDate = schoolDetail.getString("endDate").split("-")[0];
                     try {
-                        long workTime = Long.valueOf(endDate) - searchTaskPO.getWorkLimit();
-                        if(Integer.valueOf(endDate) >= workTime){
+                        Calendar date = Calendar.getInstance();
+                        String year = String.valueOf(date.get(Calendar.YEAR));
+                        long workTime = Long.valueOf(year) - searchTaskPO.getWorkLimit();
+                        if(Integer.valueOf(endDate) > workTime){
                             //毕业年限不符
                             resumeIds.add(jobKey+id);
-                            System.out.println("毕业年限不符："+endDate);
+//                            System.out.println("毕业年限不符："+endDate);
                             continue;
                         }
                     }catch (Exception e){
-                        System.out.println("毕业时间："+endDate);
+//                        System.out.println("毕业时间："+endDate);
                         continue;
                     }
 
@@ -406,7 +442,7 @@ public class ResumeTask extends TimerTask {
                     String lowSalary = desiredSalary.split("-")[0];
                     try {
                         if(Integer.valueOf(lowSalary) > 25000 && Integer.valueOf(lowSalary) <= 50000){
-                            System.out.println("要的钱太多："+desiredSalary);
+//                            System.out.println("要的钱太多："+desiredSalary);
                             resumeIds.add(jobKey+id);
                             continue;
                         }
@@ -417,12 +453,12 @@ public class ResumeTask extends TimerTask {
                     String schoolName = schoolDetail.getString("schoolName");
                     String degree = Common.schools.get(schoolName);
                     if(degree == null){
-                        System.out.println("查不到该学校："+schoolName);
+//                        System.out.println("查不到该学校："+schoolName);
                         resumeIds.add(jobKey+id);
                         continue;
                     }
                     if(!searchTaskPO.getDegree().contains(degree)){
-                        System.out.println("学历太低："+schoolName);
+//                        System.out.println("学历太低："+schoolName);
                         resumeIds.add(jobKey+id);
                         continue;
                     }
@@ -433,7 +469,7 @@ public class ResumeTask extends TimerTask {
 //                    }
                     if(resume.getInt("age") > 35){
                         //年龄不符
-                        System.out.println("太老了，年龄："+resume.getInt("age") );
+//                        System.out.println("太老了，年龄："+resume.getInt("age") );
                         resumeIds.add(jobKey+id);
                         continue;
                     }
@@ -450,7 +486,7 @@ public class ResumeTask extends TimerTask {
 
                     response = zhilianHttp.sendGet("https://rdapi.zhaopin.com/rd/resume/detail", param.toString());
                     if(response.contains("外包")){
-                        System.out.println("不考虑外包：" + id);
+//                        System.out.println("不考虑外包：" + id);
                         resumeIds.add(jobKey+id);
                         continue;
                     }
@@ -462,7 +498,7 @@ public class ResumeTask extends TimerTask {
                         String phone = candidate.getString("mobilePhone");
                         userName = candidate.getString("userName");
                         if(phone.equals("")){
-                            System.out.println("号码为空：" + id);
+//                            System.out.println("号码为空：" + id);
                             resumeIds.add(jobKey+id);
                             continue;
                         }
@@ -471,14 +507,14 @@ public class ResumeTask extends TimerTask {
                             JSONObject work = workExperience.getJSONObject(j);
                             String company = work.getString("CompanyName");
                             if(company.contains("中软") || company.contains("软通")){
-                                System.out.println("曾在中软就职："+work.getString("CompanyName"));
+//                                System.out.println("曾在中软就职："+work.getString("CompanyName"));
                                 resumeIds.add(jobKey+id);
                                 continue;
                             }
                         }
                         String desiredCityId = perData.getJSONObject("detail").getString("DesiredCity");
                         if(!desiredCityId.equals("765")){
-                            System.out.println("期望工作城市："+desireCity +" "+desiredCityId);
+//                            System.out.println("期望工作城市："+desireCity +" "+desiredCityId);
                             resumeIds.add(jobKey+id);
                             continue;
                         }
@@ -487,7 +523,7 @@ public class ResumeTask extends TimerTask {
                             //插入简历数据
                             ResumePO po = new ResumePO();
                             po.setLockDate(Calendar.getInstance().getTime());
-                            po.setFrom("zhilian");
+                            po.setSource("zhilian");
                             po.setMobile(phone);
                             po.setName(userName);
                             po.setResumeId(id);
@@ -496,12 +532,12 @@ public class ResumeTask extends TimerTask {
                             resumeIds.add(jobKey+id);
                         }
                     }else{
-                        System.out.println("获取详情失败："+response);
+                        Printer.error("获取详情失败："+response);
                     }
                 }
-            }else{
-                System.out.println(response);
-                System.out.println("智联招聘cookie失效");
+            }else if(result.getInt("code") == 4){
+//                System.out.println(response);
+                Printer.error("智联招聘cookie失效");
                 List<Config> configs = new ArrayList<>();
                 Config conf = new Config();
                 conf.setKey("zhilian_cookies");
@@ -509,9 +545,29 @@ public class ResumeTask extends TimerTask {
                 configs.add(conf);
                 configService.update(configs);
                 return;
+            }else{
+                Printer.error(jobKey + response);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void sendEmail(String resumeId){
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+        try {
+
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom("wpeiguang@foxmail.com");
+            helper.setTo("1315972502@qq.com");
+
+            helper.setSubject("简历提醒");
+            helper.setText("有一份TPG门户系统无记录的简历，id是："+resumeId+"，请及时查看！", true);
+            javaMailSender.send(mimeMessage);
+
+        } catch (Exception e) {
+            throw new MtonsException("邮件发送失败", e);
         }
     }
 
@@ -529,16 +585,22 @@ public class ResumeTask extends TimerTask {
         JSONObject jsonObject = new JSONObject(response);
         int total = jsonObject.getInt("total");
         if(total <= 0) {
-            System.out.println("没有记录：" + phone);
+            Printer.info("没有记录：" + phone);
+            ResumePO resume = resumeDao.findByResumeId(optId);
+            if(resume != null){
+                Printer.info("简历已经存在: "+optId);
+                return "TPG系统没有该记录";
+            }
             resumeIds.add(jobKey+optId);
             ResumePO po = new ResumePO();
             po.setLockDate(Calendar.getInstance().getTime());
             po.setMobile(phone);
             po.setName(name);
             po.setResumeId(optId);
-            po.setFrom("");
+            po.setSource("");
             po.setJob(jobKey);
             resumeDao.save(po);
+            sendEmail(optId);
             return "TPG系统没有该记录";
         }
         JSONArray jsonArray = jsonObject.getJSONArray("rows");
@@ -549,7 +611,7 @@ public class ResumeTask extends TimerTask {
             String lockName = object.getString("currentLockedBy");
             String lockTime = object.getString("lastOperatorDate");
             if(lockName.contains("133387")){
-                System.out.println("已经操作过该简历");
+//                System.out.println("已经操作过该简历");
                 resumeIds.add(jobKey+optId);
                 return "已经操作过该简历";
             }
@@ -558,7 +620,7 @@ public class ResumeTask extends TimerTask {
         }
         JSONObject education = object.getJSONObject("education");
         if(!searchTaskPO.getDegree().contains(education.getString("name"))){
-            System.out.println("TPG系统中的学历不符："+education.getString("name"));
+//            System.out.println("TPG系统中的学历不符："+education.getString("name"));
             resumeIds.add(jobKey+optId);
             return "TPG系统中的学历不符";
         }
@@ -574,7 +636,7 @@ public class ResumeTask extends TimerTask {
         jsonArray = jsonObject.getJSONArray("rows");
         int size = jsonObject.getInt("total");
         if(size > 100){
-            System.out.println("操作数太多，size："+size);
+//            System.out.println("操作数太多，size："+size);
             resumeIds.add(jobKey+optId);
             return "操作数太多";
         }
@@ -590,7 +652,7 @@ public class ResumeTask extends TimerTask {
             }
             String operator = row.getString("operator");
             if(operator.contains("133387")){
-                System.out.println("已经操作过该简历");
+//                System.out.println("已经操作过该简历");
                 resumeIds.add(jobKey+optId);
                 return "已经操作过该简历";
             }
@@ -602,7 +664,7 @@ public class ResumeTask extends TimerTask {
                 hrCount++;
             }
             if(hrCount > 8){
-                System.out.println("太多hr联系过");
+//                System.out.println("太多hr联系过");
                 resumeIds.add(jobKey+optId);
                 return "太多hr联系过";
             }
@@ -641,7 +703,7 @@ public class ResumeTask extends TimerTask {
         param.append("&mobile=");
         param.append(phone);
         response = tpgHttp.sendPost("http://ics.chinasoftosg.com:8066/EM/resumeAction!updateStatusResume", param.toString());
-        System.out.println("成功锁定简历：" + phone+"，response：" + response);
+//        Printer.info("成功锁定简历：" + phone+"，response：" + response);
         //分配
         param.setLength(0);
         param.append("hireProcessInfoWebVO.phoneProcess.id=&hireProcessInfoWebVO.phoneProcess.interviewResultStr=true&hireProcessInfoWebVO.phoneProcess.interviewAssessment=&hireProcessInfoWebVO.phoneProcess.notPassReason=-1&hireProcessInfoWebVO.phoneProcess.technicalInterviewer=&hireProcessInfoWebVO.phoneProcess.comprehensiveInterviewer=&hireProcessInfoWebVO.technicalProcess.id=&hireProcessInfoWebVO.technicalProcess.interviewAssessment=&hireProcessInfoWebVO.technicalProcess.technicalInterviewerAct=&hireProcessInfoWebVO.technicalProcess.technicalInterviewer=&hireProcessInfoWebVO.technicalProcess.comprehensiveInterviewer=&hireProcessInfoWebVO.comprehensiveProcess.id=&hireProcessInfoWebVO.comprehensiveProcess.interviewAssessment=&hireProcessInfoWebVO.comprehensiveProcess.comprehensiveInterviewerAct=&hireProcessInfoWebVO.comprehensiveProcess.technicalInterviewer=&hireProcessInfoWebVO.comprehensiveProcess.comprehensiveInterviewer=&hireProcessInfoWebVO.hrProcess.id=&hireProcessInfoWebVO.hrProcess.interviewAssessment=&hireProcessInfoWebVO.hrProcess.nextStageDate=&hireProcessInfoWebVO.hrProcess.technicalInterviewer=&hireProcessInfoWebVO.hrProcess.comprehensiveInterviewer=&hireProcessInfoWebVO.customerProcess.id=&hireProcessInfoWebVO.customerProcess.interviewAssessment=&hireProcessInfoWebVO.customerProcess.customerRankId=-1&hireProcessInfoWebVO.customerProcess.technicalInterviewer=&hireProcessInfoWebVO.customerProcess.comprehensiveInterviewer=&hireProcessInfoWebVO.lobProcess.id=&hireProcessInfoWebVO.lobProcess.interviewAssessment=&hireProcessInfoWebVO.lobProcess.notPassReason=-1&hireProcessInfoWebVO.lobProcess.technicalInterviewer=&hireProcessInfoWebVO.lobProcess.comprehensiveInterviewer=&hireProcessInfoWebVO.entryProcess.id=&hireProcessInfoWebVO.entryProcess.entryStr=&hireProcessInfoWebVO.entryProcess.interviewAssessment=&hireProcessInfoWebVO.entryProcess.notEntryReason=-1&hireProcessInfoWebVO.entryProcess.technicalInterviewer=&hireProcessInfoWebVO.entryProcess.comprehensiveInterviewer=&hireProcessInfoWebVO.requirementNumber=");
@@ -654,7 +716,7 @@ public class ResumeTask extends TimerTask {
         param.append("&hireProcessInfoWebVO.resumeId=");
         param.append(id);
         response = tpgHttp.sendPost("http://ics.chinasoftosg.com:8066/EM/hireProcessInfoAction!addHireProcessInfoNew", param.toString());
-        System.out.println("成功分配：" + phone+"，response：" + response);
+        Printer.info("成功分配：" + phone+"，response：" + response);
         return "";
     }
 
@@ -668,5 +730,7 @@ public class ResumeTask extends TimerTask {
         String out = sdf.format(date);
         return out+" 14:30";
     }
+
+
 
 }

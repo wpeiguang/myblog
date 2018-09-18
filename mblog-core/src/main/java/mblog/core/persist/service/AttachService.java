@@ -16,7 +16,7 @@ import java.util.Set;
 import mblog.core.data.Attach;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public interface AttachService {

@@ -10,7 +10,7 @@
 package mblog.core.persist.service;
 
 /**
- * @author langhsu on 2015/8/14.
+ * @author wangpeiguang on 2015/8/14.
  */
 public interface VerifyService {
     /**

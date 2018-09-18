@@ -18,7 +18,7 @@ import javax.persistence.PersistenceContext;
 import java.text.MessageFormat;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 public class FeedsDaoImpl implements FeedsDaoCustom {

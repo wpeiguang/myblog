@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * 数字处理
  * - 大于1000的显示1k
  * - 大于10000的显示1m
- * Created by langhsu on 2015/10/8.
+ * Created by wangpeiguang on 2015/10/8.
  */
 @Component
 public class NumberDirective extends TemplateDirective {

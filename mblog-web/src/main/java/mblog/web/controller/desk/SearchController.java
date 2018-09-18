@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 文章搜索
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Controller

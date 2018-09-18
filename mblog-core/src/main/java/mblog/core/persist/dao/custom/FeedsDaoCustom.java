@@ -3,7 +3,7 @@ package mblog.core.persist.dao.custom;
 import mblog.core.data.Feeds;
 
 /**
- * Created by langhsu on 2017/9/30.
+ * Created by wangpeiguang on 2017/9/30.
  */
 public interface FeedsDaoCustom {
     /**

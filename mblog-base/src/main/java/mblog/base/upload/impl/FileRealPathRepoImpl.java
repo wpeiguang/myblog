@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.ServletContextAware;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Service("fileRealPathRepo")

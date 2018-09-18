@@ -24,7 +24,7 @@ import java.util.List;
  *  使用：#contents(groupId, 'paging')
  *  解析： ord, pn 等参数从request中获取 , groupId 从标签中获取
  *
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Component

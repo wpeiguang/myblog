@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * shiro权限管理的配置
  * <p>
- * Created by langhsu on 2017/11/13.
+ * Created by wangpeiguang on 2017/11/13.
  */
 @Configuration
 public class ShiroConfig {
@@ -58,8 +58,8 @@ public class ShiroConfig {
     public DefaultWebSessionManager defaultWebSessionManager(CacheManager cacheShiroManager) {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setCacheManager(cacheShiroManager);
-        sessionManager.setSessionValidationInterval(1800 * 1000);
-        sessionManager.setGlobalSessionTimeout(900 * 1000);
+        sessionManager.setSessionValidationInterval(60 * 60 * 1000);
+        sessionManager.setGlobalSessionTimeout(12 * 60 * 60 * 1000);
         sessionManager.setDeleteInvalidSessions(true);
         sessionManager.setSessionValidationSchedulerEnabled(true);
         Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);

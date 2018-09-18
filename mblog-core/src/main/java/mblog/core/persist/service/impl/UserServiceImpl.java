@@ -60,7 +60,6 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public AccountProfile login(String username, String password) {
-		Printer.info("[login] username: "+username +", password: "+password);
 		UserPO po = userDao.findByUsername(username);
 		AccountProfile u = null;
 

@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * @author langhsu on 2015/8/31.
+ * @author wangpeiguang on 2015/8/31.
  */
 public interface NotifyService {
 

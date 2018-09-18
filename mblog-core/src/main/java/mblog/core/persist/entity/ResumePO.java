@@ -1,13 +1,14 @@
 package mblog.core.persist.entity;
 
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cache;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "mto_resume")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class ResumePO {
 
   @Id
@@ -46,14 +47,6 @@ public class ResumePO {
     this.mobile = mobile;
   }
 
-  public String getFrom() {
-    return source;
-  }
-
-  public void setFrom(String source) {
-    this.source = source;
-  }
-
   public String getResumeId() {
     return resumeId;
   }
@@ -76,5 +69,13 @@ public class ResumePO {
 
   public void setJob(String job) {
     this.job = job;
+  }
+
+  public String getSource() {
+    return source;
+  }
+
+  public void setSource(String source) {
+    this.source = source;
   }
 }

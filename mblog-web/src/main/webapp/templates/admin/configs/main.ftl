@@ -14,7 +14,9 @@
                     <!-- required for floating -->
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs tabs-left">
-                        <li class="active"><a href="#sites" data-toggle="tab" aria-expanded="true">站点配置</a>
+                        <li class="active"><a href="#set" data-toggle="tab" aria-expanded="true">招聘设置</a>
+                        </li>
+                        <li class=""><a href="#sites" data-toggle="tab" aria-expanded="false">站点配置</a>
                         </li>
                         <li class=""><a href="#settings" data-toggle="tab" aria-expanded="false">系统配置</a>
                         </li>
@@ -24,7 +26,10 @@
                 <div class="col-xs-9">
                     <!-- Tab panes -->
                     <div class="tab-content">
-                        <div class="tab-pane active" id="sites">
+                        <div class="tab-pane active" id="set">
+                            <#include "/admin/configs/set.ftl">
+                        </div>
+                        <div class="tab-pane" id="sites">
                             <#include "/admin/configs/sites.ftl">
                         </div>
                         <div class="tab-pane" id="settings">

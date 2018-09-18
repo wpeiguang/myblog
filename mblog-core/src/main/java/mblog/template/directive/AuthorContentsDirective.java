@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 /**
  * 根据作者取文章列表
  *
- * @author langhsu
+ * @author wangpeiguang
  *
  */
 @Component

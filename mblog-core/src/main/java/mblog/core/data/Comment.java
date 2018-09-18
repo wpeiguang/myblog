@@ -16,7 +16,7 @@ import mblog.core.persist.entity.CommentPO;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
- * @author langhsu
+ * @author wangpeiguang
  * 
  */
 public class Comment extends CommentPO implements Serializable {
