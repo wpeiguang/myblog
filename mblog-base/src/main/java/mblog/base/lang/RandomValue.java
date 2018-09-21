@@ -77,7 +77,7 @@ public class RandomValue {
      * 返回中文姓名
      */
     private static String name_sex = "";
-    private static String getChineseName() {
+    public static String getChineseName() {
         int index=getNum(0, firstName.length()-1);
         String first=firstName.substring(index, index+1);
         int sex=getNum(0,1);
@@ -414,12 +414,5 @@ public class RandomValue {
         return UUID.randomUUID().toString().replaceAll("-", "").toUpperCase();
     }
 
-    public static void main(String[] args) {
-      //  System.out.println(MD5("41411115270377988e0e9f59c08904c13229c1b03de3e2b15643061194cwww.foundgame.com"));
-        System.out.println(MD5("admin"));
-//        HttpRequest httpRequest = new HttpRequest(null, null, null);
-//        for(int i = 0; i<100; i++) {
-//            httpRequest.downloadImage("https://tos.link/captcha.html", "tos_"+i+".png");
-//        }
-    }
+
 }

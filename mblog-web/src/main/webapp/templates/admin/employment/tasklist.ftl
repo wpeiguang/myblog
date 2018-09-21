@@ -1,5 +1,4 @@
 <#include "/admin/message.ftl">
-<#include "/admin/message.ftl">
 <#include "/admin/utils/ui.ftl"/>
 <meta http-equiv="refresh" content="600">
 <@layout>

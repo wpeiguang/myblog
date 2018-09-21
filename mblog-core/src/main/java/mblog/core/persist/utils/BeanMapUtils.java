@@ -86,6 +86,12 @@ public class BeanMapUtils {
 		return ret;
 	}
 
+	public static GeneralizeTask copy(GeneralizeTaskPO po) {
+		GeneralizeTask ret = new GeneralizeTask();
+		BeanUtils.copyProperties(po, ret);
+		return ret;
+	}
+
 	public static Post copy(PostPO po, int level) {
 		Post d = new Post();
 		if (level > 0) {
