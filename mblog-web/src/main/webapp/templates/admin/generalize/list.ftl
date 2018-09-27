@@ -1,6 +1,5 @@
 <#include "/admin/message.ftl">
 <#include "/admin/utils/ui.ftl"/>
-<meta http-equiv="refresh" content="600">
 <@layout>
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -16,13 +15,14 @@
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                <form id="addForm" class="form-inline" method="post" action="add_task">
+                <form id="addProjectForm" class="form-inline" method="post" action="add_task">
                     <input type="hidden" name="pn" value="${page.pageNo}"/>
                     <div class="form-group">
                         <label class="control-label">项目</label>
                         <select class="form-control" id="project" name="project" value="${post.project}">
                             <option value="0">请选择</option>
-                            <option value="鱼矿池">鱼矿池</option>
+                            <option value="比特鱼">比特鱼</option>
+                            <option value="宝石星球">宝石星球</option>
                         </select>
                         <label style="width:20px"></label>
                     </div>
@@ -33,13 +33,13 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label">时间间隔</label>
-                        <input type="text" name="interval" class="form-control" value="${post.inteval}" placeholder="请输入时间间隔">
+                        <input type="text" name="inteval" class="form-control" value="${post.inteval}" placeholder="请输入时间间隔">
                         <label class="control-label">秒</label>
                         <label style="width:20px"></label>
                     </div>
                     <div class="form-group">
                         <label class="control-label">数量</label>
-                        <input type="text" name="count" class="form-control" value="${post.amount}" placeholder="请输入推广数量">
+                        <input type="text" name="amount" class="form-control" value="${post.amount}" placeholder="请输入推广数量">
                         <label style="width:20px"></label>
                     </div>
                     <button type="submit" class="btn btn-default pull-right">添加</button>
@@ -53,10 +53,11 @@
                         </th>
                         <th>项目</th>
                         <th>推广码</th>
-                        <th>时间间隔</th>
-                        <th>数量</th>
-                        <th>已完成量</th>
-                        <th>剩余量</th>
+                        <th>时间间隔（秒）</th>
+                        <th>总量</th>
+                        <th>成功数</th>
+                        <th>失败数</th>
+                        <th>状态</th>
                         <th align="center" width="200">操作</th>
                     </tr>
                     </thead>
@@ -71,7 +72,8 @@
                             <td>${row.inteval}</td>
                             <td>${row.amount}</td>
                             <td>${row.successCount}</td>
-                            <td>${row.remainCount}</td>
+                            <td>${row.failedCount}</td>
+                            <td>${row.status}</td>
                             <td class="text-center" align="left">
                                 <a href="javascript:void(0);" class="btn btn-xs btn-white" data-id="${row.id}"
                                    data-action="start">
@@ -90,7 +92,7 @@
                         </#list>
                     </tbody>
                 </table>
-                <@pager "tasklist" page 5 />
+                <@pager "list" page 5 />
             </div>
         </div>
     </div>
@@ -98,19 +100,20 @@
 <script type="text/javascript">
     var J = jQuery;
 
-    function winReload(json) {
+    function genReload(json) {
         if (json.code >= 0) {
             if (json.message != null && json.message != '') {
                 layer.msg(json.message, {icon: 1});
             }
-            window.location.reload();
+//            window.location.reload();
+            window.location.href = "${base}/admin/generalize/list";
         } else {
             layer.msg(json.message, {icon: 2});
         }
     }
 
     function doDelete(ids) {
-        J.getJSON('${base}/admin/generalize/delete_task', J.param({'id': ids}, true), winReload);
+        J.getJSON('${base}/admin/generalize/delete_task', J.param({'id': ids}, true), genReload);
     }
 
     $(function () {
@@ -129,12 +132,12 @@
 
         $('#dataGrid a[data-action="start"]').bind('click', function () {
             var that = $(this);
-            J.getJSON('${base}/admin/generalize/start_task', J.param({'id': that.attr('data-id')}, true), winReload);
+            J.getJSON('${base}/admin/generalize/start_task', J.param({'id': that.attr('data-id')}, true), genReload);
         });
 
         $('#dataGrid a[data-action="stop"]').bind('click', function () {
             var that = $(this);
-            J.getJSON('${base}/admin/generalize/stop_task', J.param({'id': that.attr('data-id')}, true), winReload);
+            J.getJSON('${base}/admin/generalize/stop_task', J.param({'id': that.attr('data-id')}, true), genReload);
         });
 
 

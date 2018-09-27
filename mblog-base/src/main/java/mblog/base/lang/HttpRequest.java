@@ -62,7 +62,7 @@ public class HttpRequest {
             if(cookies != null){
                 //this.cookie = "";
                 for(String c : cookies){
-                    this.cookie = this.cookie + c + ";";
+                    this.cookie = (this.cookie == null ? "" : this.cookie )+ c + ";";
                 }
             }
             // 遍历所有的响应头字段

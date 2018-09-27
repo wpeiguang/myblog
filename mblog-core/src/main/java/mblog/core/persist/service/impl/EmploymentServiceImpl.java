@@ -70,7 +70,7 @@ public class EmploymentServiceImpl implements EmploymentService {
     @Transactional
     @CacheEvict(value = "commentsCaches", allEntries = true)
     public void delete(List<Long> ids) {
-        searchTaskDao.deleteAllByIdIn(ids);
+        resumeDao.deleteAllByIdIn(ids);
     }
 
     @Override
@@ -95,13 +95,13 @@ public class EmploymentServiceImpl implements EmploymentService {
         Calendar currentTime = Calendar.getInstance();
         currentTime.setTime(new Date());
         int currentHour = currentTime.get(Calendar.HOUR);
-        currentTime.set(Calendar.HOUR, currentHour);
+        currentTime.set(Calendar.HOUR, currentHour+1);
         currentTime.set(Calendar.MINUTE, (int) (Math.random() * 5) + 5);
         currentTime.set(Calendar.SECOND, 0);
         currentTime.set(Calendar.MILLISECOND, 0);
         Date NextHour = currentTime.getTime();
         timer.scheduleAtFixedRate(new ResumeTask(taskPO, appContext.getConfig(), resumeDao, configService, javaMailSender), NextHour, 1000 * 60 * 60);
-        Common.taskList.put(taskPO.getId(), timer);
+        Common.taskList.put(this.getClass().getName()+taskPO.getId(), timer);
         taskPO.setStatus(EnumTaskStatus.RUNNING.getName());
         searchTaskDao.save(taskPO);
         return "操作成功";
@@ -116,7 +116,7 @@ public class EmploymentServiceImpl implements EmploymentService {
         if(EnumTaskStatus.STOPED.getName().equals(taskPO.getStatus())){
             return "任务已经停止";
         }
-        Timer timer = Common.taskList.get(id);
+        Timer timer = Common.taskList.get(this.getClass().getName()+id);
         if(timer != null){
             timer.cancel();
         }

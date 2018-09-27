@@ -1,20 +1,25 @@
 package mblog.core.persist.service.impl;
 
 import mblog.base.lang.Common;
+import mblog.base.lang.EnumProject;
 import mblog.base.lang.EnumTaskStatus;
 import mblog.core.data.GeneralizeTask;
 import mblog.core.data.Resume;
+import mblog.core.persist.dao.GeneralizeListDao;
 import mblog.core.persist.dao.GeneralizeTaskDao;
 import mblog.core.persist.entity.GeneralizeTaskPO;
 import mblog.core.persist.service.GeneralizeService;
 import mblog.core.persist.utils.BeanMapUtils;
-import mblog.core.task.Bitfish;
+import mblog.core.task.BaoshixingqiuTask;
+import mblog.core.task.BitfishTask;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -23,6 +28,9 @@ public class GeneralizeServiceImpl implements GeneralizeService {
 
     @Autowired
     private GeneralizeTaskDao generalizeTaskDao;
+
+    @Autowired
+    private GeneralizeListDao generalizeListDao;
 
     @Override
     public void addTask(GeneralizeTask task) {
@@ -40,6 +48,7 @@ public class GeneralizeServiceImpl implements GeneralizeService {
 
         page.getContent().forEach(po -> {
             GeneralizeTask ret = BeanMapUtils.copy(po);
+            ret.setStatus(EnumTaskStatus.valueOf(ret.getStatus()).getValue());
             rets.add(ret);
         });
 
@@ -47,13 +56,10 @@ public class GeneralizeServiceImpl implements GeneralizeService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = "commentsCaches", allEntries = true)
     public void delete(List<Long> ids) {
-
-    }
-
-    @Override
-    public void deleteResume(Long id) {
-
+        generalizeTaskDao.deleteAllByIdIn(ids);
     }
 
     @Override
@@ -74,25 +80,41 @@ public class GeneralizeServiceImpl implements GeneralizeService {
     }
 
     private String startTask(GeneralizeTaskPO taskPO){
-        Timer timer = new Timer();
-        Calendar currentTime = Calendar.getInstance();
-        currentTime.setTime(new Date());
-        int currentHour = currentTime.get(Calendar.HOUR);
-        currentTime.set(Calendar.HOUR, currentHour);
-        currentTime.set(Calendar.MINUTE, (int) (Math.random() * 5) + 5);
-        currentTime.set(Calendar.SECOND, 0);
-        currentTime.set(Calendar.MILLISECOND, 0);
-        Date NextHour = currentTime.getTime();
-        timer.scheduleAtFixedRate(new Bitfish(taskPO), NextHour, 1000 * 60 * 60 * 24 * 365);
-        Common.taskList.put(taskPO.getId(), timer);
+        Thread thread = null;
+        if(taskPO.getProject().equals(EnumProject.BITFISH.getValue())) {
+            thread = new BitfishTask(taskPO, generalizeTaskDao, generalizeListDao);
+        }
+        else if(taskPO.getProject().equals(EnumProject.BAOSHI_XINGQIU.getValue())){
+            thread = new BaoshixingqiuTask(taskPO, generalizeTaskDao, generalizeListDao);
+        }
+        else{
+            return "项目不存在";
+        }
+        Common.threadList.put(Common.GENERALIZE_THREAD+taskPO.getId(), thread);
+        Common.cachedThreadPool.execute(thread);
         taskPO.setStatus(EnumTaskStatus.RUNNING.getName());
+        taskPO.setSuccessCount(0);
+        taskPO.setFailedCount(0);
         generalizeTaskDao.save(taskPO);
         return "操作成功";
     }
 
     @Override
     public String stopTask(Long id) {
-        return null;
+        GeneralizeTaskPO taskPO = generalizeTaskDao.findById(id);
+        if(taskPO == null){
+            return "任务不存在";
+        }
+        if(EnumTaskStatus.STOPED.getName().equals(taskPO.getStatus())){
+            return "任务已经停止";
+        }
+        Thread thread = Common.threadList.get(Common.GENERALIZE_THREAD+id);
+        if(thread != null){
+            Common.threadList.remove(Common.GENERALIZE_THREAD+id);
+        }
+        taskPO.setStatus(EnumTaskStatus.STOPED.getName());
+        generalizeTaskDao.save(taskPO);
+        return "操作成功";
     }
 
     @Override

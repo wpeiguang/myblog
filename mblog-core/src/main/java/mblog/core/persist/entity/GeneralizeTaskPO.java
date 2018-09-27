@@ -26,6 +26,12 @@ public class GeneralizeTaskPO {
     @Column(name = "amount")
     private int amount;
 
+    @Column(name = "success_count")
+    private int successCount;
+
+    @Column(name = "failed_count")
+    private int failedCount;
+
     @Column(name = "status")
     private String status;
 
@@ -75,5 +81,21 @@ public class GeneralizeTaskPO {
 
     public void setInteval(int inteval) {
         this.inteval = inteval;
+    }
+
+    public int getSuccessCount() {
+        return successCount;
+    }
+
+    public void setSuccessCount(int successCount) {
+        this.successCount = successCount;
+    }
+
+    public int getFailedCount() {
+        return failedCount;
+    }
+
+    public void setFailedCount(int failedCount) {
+        this.failedCount = failedCount;
     }
 }

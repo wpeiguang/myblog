@@ -8,10 +8,8 @@
             <div class="x_title">
                 <h2>简历列表</h2>
                 <ul class="nav navbar-right panel_toolbox">
-                    <#--<@shiro.hasPermission name="comments:edit">-->
-                        <#--<li><a href="javascrit:void(0);" data-action="batch_del">批量删除</a>-->
-                        <#--</li>-->
-                    <#--</@shiro.hasPermission>-->
+                    <li><a href="javascrit:void(0);" data-action="batch_del">批量删除</a>
+                    </li>
                 </ul>
                 <div class="clearfix"></div>
             </div>
@@ -117,6 +115,10 @@
         J.getJSON('${base}/admin/employment/delete_resume', J.param({'id': ids}, true), winReload);
     }
 
+    function batchDel(ids) {
+        J.getJSON('${base}/admin/employment/batch_del', J.param({'id': ids}, true), winReload);
+    }
+
     $(function () {
         // 删除
         $('#dataGrid a[data-action="delete_resume"]').bind('click', function () {
@@ -143,6 +145,28 @@
         if(verify == "1"){
             alert("51job简历查看需要人工验证码");
         }
+    });
+
+    $('a[data-action="batch_del"]').click(function () {
+        var check_length = $("input[type=checkbox][name=id]:checked").length;
+
+        if (check_length == 0) {
+            layer.msg("请至少选择一项", {icon: 2});
+            return false;
+        }
+
+        var ids = [];
+        $("input[type=checkbox][name=id]:checked").each(function () {
+            ids.push($(this).val());
+        });
+
+        layer.confirm('确定删除此项吗?', {
+            btn: ['确定', '取消'], //按钮
+            shade: false //不显示遮罩
+        }, function () {
+            batchDel(ids);
+        }, function () {
+        });
     });
 </script>
 </@layout>

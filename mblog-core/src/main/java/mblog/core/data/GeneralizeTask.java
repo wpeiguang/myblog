@@ -15,7 +15,9 @@ public class GeneralizeTask implements Serializable {
 
     private int successCount;
 
-    private int remainCount;
+    private int failedCount;
+
+    private String status;
 
     public long getId() {
         return id;
@@ -49,14 +51,6 @@ public class GeneralizeTask implements Serializable {
         this.successCount = successCount;
     }
 
-    public int getRemainCount() {
-        return remainCount;
-    }
-
-    public void setRemainCount(int remainCount) {
-        this.remainCount = remainCount;
-    }
-
     public int getAmount() {
         return amount;
     }
@@ -71,5 +65,21 @@ public class GeneralizeTask implements Serializable {
 
     public void setInteval(int inteval) {
         this.inteval = inteval;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public int getFailedCount() {
+        return failedCount;
+    }
+
+    public void setFailedCount(int failedCount) {
+        this.failedCount = failedCount;
     }
 }

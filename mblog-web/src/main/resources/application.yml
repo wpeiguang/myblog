@@ -36,7 +36,7 @@ spring:
     mail:
         host: smtp.qq.com
         username: wpeiguang@foxmail.com
-        password: fedglgvwourfbabg
+        password: cinevstwiqrbjich
         port: 465
         properties:
             mail.smtp.auth: true

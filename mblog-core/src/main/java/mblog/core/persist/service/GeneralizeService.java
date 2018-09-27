@@ -16,8 +16,6 @@ public interface GeneralizeService {
 
     void delete(List<Long> ids);
 
-    void deleteResume(Long id);
-
     Page<Resume> getResumeList(Pageable pageable);
 
     String startTaskById(Long id);

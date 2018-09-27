@@ -69,24 +69,20 @@ public class ResumeTask extends TimerTask {
             tpgHttp = new HttpRequest(config.get("ip"), userAgent, null);
             tpgHttp.setCookie(config.get("tpg_cookies"));
         }
-
-        if(!StringUtils.isEmpty(config.get("zhilian_cookies"))) {
-            processZhilian();
-        }
-
-        if(!StringUtils.isEmpty(config.get("h51_cookies"))) {
-            process51Job();
+        Calendar curTime = Calendar.getInstance();
+        curTime.setTime(new Date());
+        int currentHour = curTime.get(Calendar.HOUR_OF_DAY);
+        if(currentHour <= 16){
+            if(!StringUtils.isEmpty(config.get("zhilian_cookies"))) {
+                processZhilian();
+            }
+            if(!StringUtils.isEmpty(config.get("h51_cookies"))) {
+                process51Job();
+            }
         }
     }
 
     private void process51Job(){
-        Calendar curTime = Calendar.getInstance();
-        curTime.setTime(new Date());
-        int currentHour = curTime.get(Calendar.HOUR_OF_DAY);
-        if(currentHour > 0 && currentHour < 8){
-            return;
-        }
-
         HttpRequest httpRequest = new HttpRequest(config.get("ip"), userAgent, null);
         Calendar currentTime = Calendar.getInstance();
         currentTime.setTime(new Date());

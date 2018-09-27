@@ -6,11 +6,18 @@ import org.jsoup.Jsoup;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Common {
-    public static Map<Long, Timer> taskList = new HashMap<>();
+    public static Map<String, Timer> taskList = new HashMap<>();
+
+    public static Map<String, Thread> threadList = new HashMap<>();
+    public static String GENERALIZE_THREAD = "GENERALIZE_THREAD_";
 
     public static Map<String, String> schools = new HashMap<>();
+
+    public static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
     public static final String[] userAgents = new String[]{"Mozilla/5.0 (Linux; Android 5.1.1; SM-G9350 Build/LMY48Z) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/39.0.0.0 Safari/537.36",
             "Mozilla/5.0 (Linux; U; Android 2.3.7; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1",

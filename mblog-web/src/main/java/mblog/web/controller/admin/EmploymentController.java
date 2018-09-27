@@ -149,6 +149,21 @@ public class EmploymentController extends BaseController {
         return data;
     }
 
+    @RequestMapping("/batch_del")
+    public @ResponseBody
+    Data batchDel(@RequestParam("id") List<Long> id) {
+        Data data = Data.failure("操作失败");
+        if (id != null) {
+            try {
+                employmentService.delete(id);
+                data = Data.success("操作成功", Data.NOOP);
+            } catch (Exception e) {
+                data = Data.failure(e.getMessage());
+            }
+        }
+        return data;
+    }
+
     @RequestMapping("/resume")
     public String resume(ModelMap model) {
         Pageable pageable = wrapPageable();
