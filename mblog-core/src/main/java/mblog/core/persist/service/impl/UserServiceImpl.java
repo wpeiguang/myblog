@@ -20,8 +20,11 @@ import java.util.Set;
 
 import mblog.base.lang.EntityStatus;
 import mblog.base.lang.MtonsException;
+import mblog.base.lang.RandomValue;
 import mblog.base.print.Printer;
 import mblog.base.utils.MD5;
+import mblog.core.persist.dao.FollowDao;
+import mblog.core.persist.entity.FollowPO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +59,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private RoleDao roleDao;
+
+	@Autowired
+	private FollowDao followDao;
 
 	@Override
 	@Transactional
@@ -106,6 +112,31 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public User register(User user) {
+		return reg(user);
+//		int count = 20000;
+//		User user1 = new User();
+//		while (count-- > 0){
+//			int len = (int)(6+Math.random()*(10-6+1));
+//			String nickname = RandomValue.getUserName(len);
+//			user.setUsername(nickname);
+//			user.setName(RandomValue.getChineseName());
+//			len = (int)(7+Math.random()*(14-7+1));
+//			String password = RandomValue.getRandomString(len);
+//			user.setPassword(password);
+//			user.setEmail(RandomValue.getEmail(6, 10));
+//			user1 = reg(user);
+//
+//			FollowPO po = new FollowPO();
+//			po.setUser(new UserPO(user1.getId()));
+//			po.setFollow(new UserPO(6));
+//			po.setCreated(new Date());
+//
+//			followDao.save(po);
+//		}
+//		return user1;
+	}
+
+	private User reg(User user) {
 		Assert.notNull(user, "Parameter user can not be null!");
 
 		Assert.hasLength(user.getUsername(), "用户名不能为空!");

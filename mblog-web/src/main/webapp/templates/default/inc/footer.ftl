@@ -34,7 +34,7 @@
 		<span>${site_copyright} <a
 			href="http://www.miitbeian.gov.cn/" target="_blank">${site_icp}</a>
 		</span>
-		<span class="pull-right">Powered By <a href="http://mtons.com/?copyright" target="_blank">Mtons</a></span>
+		<span class="pull-right">Powered By <a href="#" target="_blank">Mtons</a></span>
 	</div>
 
 </footer>

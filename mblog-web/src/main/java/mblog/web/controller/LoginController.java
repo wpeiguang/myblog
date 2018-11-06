@@ -73,7 +73,6 @@ public class LoginController extends BaseController {
             }else {
                 ret = Views.REDIRECT_HOME;
             }
-
             // 更新消息数量
 //            pushBadgesCount();
         } catch (AuthenticationException e) {
